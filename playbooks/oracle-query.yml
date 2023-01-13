@@ -1,0 +1,45 @@
+---
+#- set_fact:
+#    execute_command: "export ORACLE_HOME={{oracle_database_sql_oracle_home}} && export ORACLE_SID={{oracle_database_sql_sid}} && {{oracle_database_sqlplus}} {{oracle_database_sql_admin_username}}/{{oracle_database_sql_admin_password}} @{{sql_path}}{{guarda_serviciocis_senha}} {{generar_registro_cmdb}} {{clase_de_ci}} {{id_de_elemento}} {{fecha_termino_proceso}} {{centro_datos_sat}} {{selector_de_ambiente}} {{numero_de_ticket}} {{area_general}} {{area_central}} {{nombre_aplicacion}} {{version_proyecto}} {{tipo_de_servicio}}"
+
+- set_fact:
+    execute_shell: "{{oracle_ssh_connect}} export ORACLE_HOME={{oracle_database_sql_oracle_home}} && export ORACLE_SID={{oracle_database_sql_sid}} && {{oracle_database_sqlplus}} {{oracle_database_sql_admin_username}}/{{oracle_database_sql_admin_password}} @{{sql_path}}{{guarda_serviciocis_senha}} {{generar_registro_cmdb}} {{clase_de_ci}} {{id_de_elemento}} {{fecha_termino_proceso}} {{centro_datos_sat}} {{selector_de_ambiente}} {{numero_de_ticket}} {{area_general}} {{area_central}} {{nombre_aplicacion}} {{version_proyecto}} {{tipo_de_servicio}}"
+
+#- set_fact:
+#    execute_command: "export ORACLE_HOME={{oracle_database_sql_oracle_home}} && export ORACLE_SID={{oracle_database_sql_sid}} && {{oracle_database_sqlplus}} {{oracle_database_sql_admin_username}}/{{oracle_database_sql_admin_password}} @{{sql_path}}{{guarda_serviciocis_senha}} {{generar_registro_cmdb}} {{clase_de_ci}} {{id_de_elemento}} {{fecha_termino_proceso}} {{centro_datos_sat}} {{selector_de_ambiente}} {{numero_de_ticket}} {{area_general}} {{area_central}} {{nombre_aplicacion}} {{version_proyecto}} {{tipo_de_servicio}}"
+
+#- set_fact:
+#    execute_shell: "{{oracle_ssh_connect}} ls -lrt"
+
+- debug:
+    msg: "command: '{{ execute_shell }}' Sera ejecutado en sentencia Oracle en el sig esquema ({{ oracle_database_sql_sid }}) (ORACLE_HOME: {{oracle_database_sql_oracle_home }})"
+
+- name: persistir_servicios_datoscis
+#  command: "{{execute_command}}"
+
+  command: "{{execute_shell}}"
+
+#  shell: |
+#    "echo | {{oracle_ssh_connect}} {{oracle_database_sqlplus}} {{oracle_database_sql_admin_username}}/{{oracle_database_sql_admin_password}} @{{sql_path}}{{guarda_serviciocis_senha}} {{generar_registro_cmdb}} {{clase_de_ci}} {{id_de_elemento}} {{fecha_termino_proceso}} {{centro_datos_sat}} {{selector_de_ambiente}} {{numero_de_ticket}} {{area_general}} {{area_central}} {{nombre_aplicacion}} {{version_proyecto}} {{tipo_de_servicio}}"
+#    echo $ORACLE_HOME; echo $ORACLE_SID; echo $SQL_GUARDA_SERVICIOCIS; ls -lrt
+#    "{{oracle_database_sqlplus}} {{oracle_database_sql_admin_username}}/{{oracle_database_sql_admin_password}} @{{sql_path}}{{guarda_serviciocis_senha}} {{generar_registro_cmdb}} {{clase_de_ci}} {{id_de_elemento}} {{fecha_termino_proceso}} {{centro_datos_sat}} {{selector_de_ambiente}} {{numero_de_ticket}} {{area_general}} {{area_central}} {{nombre_aplicacion}} {{version_proyecto}} {{tipo_de_servicio}}"
+#    export ORACLE_HOME={{oracle_database_sql_oracle_home}} && export ORACLE_SID={{oracle_database_sql_sid}} && {{oracle_database_sqlplus}} {{oracle_database_sql_admin_username}}/{{oracle_database_sql_admin_password}} @{{sql_path}}{{guarda_serviciocis_senha}} {{generar_registro_cmdb}} {{clase_de_ci}} {{id_de_elemento}} {{fecha_termino_proceso}} {{centro_datos_sat}} {{selector_de_ambiente}} {{numero_de_ticket}} {{area_general}} {{area_central}} {{nombre_aplicacion}} {{version_proyecto}} {{tipo_de_servicio}}
+#  become: true
+#  become-user: oracle      
+  args:
+#    chdir: "{{sql_path}}"
+    executable: /bin/bash
+  register: reg_persistir_servicios_datoscis
+  environment:
+    ORACLE_HOME: "{{oracle_database_sql_oracle_home}}"
+    ORACLE_SID: "{{oracle_database_sql_sid}}"
+    SQL_PATH: "{{sql_path}}"
+    SQL_GUARDA_SERVICIOCIS: "{{sql_path}}guarda_serviciocis_senha.sql"
+#    PATH: "{{ansible_env.PATH}}:/sbin:/usr/sbin"
+    ANSIBLE_HOST_KEY_CHECKING: False
+    
+- debug:
+    msg: "{{ reg_persistir_servicios_datoscis.stdout }}"
+    
+- debug:
+    msg: "Se prodjo el siguiente error: {{ reg_persistir_servicios_datoscis.stderr }}"
